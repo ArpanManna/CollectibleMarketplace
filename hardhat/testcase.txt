@@ -1,0 +1,20 @@
+1. should assign total supply of OCEAN token to contract
+2. should test balance and ownership of token while creating collectibles
+3. should test marketplace approval after collectible created
+4. should test unique URI of different tokens
+5. should test balance and token transfer between buyer and seller when buy token
+6. buying token should fail if buyer does not have enough ether
+7. check accurate listing in marketplace
+8. seller should be token owner for listing
+9. user cannot list more item than supply
+10. token to list should be minted before
+11. should test tranfer of collectible ownership to buyer
+12. should test tranfer of OCEAN token to seller if purchsed through ERC20
+13. should test transfer of amount if purchased through ether
+14. should fail if sender does not have enough balance to purchase
+15. collectible should not be purchased if not listed
+16. collectible should not be purchased if already sold
+17. should emit TokenPurchsed event on buying OCEAN token
+18. should emit CollectibleListed event on listing in marketplace
+19. should emit CollectiblePurchased event on purchase from marketplace
+20. should emit CollectibleCreated event on creating collectibles
