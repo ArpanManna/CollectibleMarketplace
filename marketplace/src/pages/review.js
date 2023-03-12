@@ -1,17 +1,139 @@
-/* This example requires Tailwind CSS v2.0+ */
-import { Fragment, useRef, useState } from 'react';
+import { Fragment, useRef, useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-//import { ExclamationIcon } from '@heroicons/react/outline';
 import ReactStars from "react-rating-stars-component";
+import { useRouter } from 'next/router';
+import { create } from 'ipfs-http-client';
+import Web3Modal from 'web3modal';
+import { Contract, providers, utils } from "ethers";
+import { collectibelMarketplaceAddress, marketplaceABI } from "../../../config";
+import { ethers } from 'ethers';
+
+// setup ipfs
+
+const projectId = '2Mrbv5oqANoJjqAaoTEiiiEorN4';
+const projectSecret = '6afff0e67470daf86f28112c4bd4123a';
+const auth =
+    'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
+
+const client = create({
+    host: 'ipfs.infura.io',
+    port: 5001,
+    protocol: 'https',
+    headers: {
+        authorization: auth,
+    },
+});
 
 
-export default function Example() {
+export default function Example(props) {
+  // walletConnected keep track of whether the user's wallet is connected or not
+  const [walletConnected, setWalletConnected] = useState(false);
+    // Create a reference to the Web3 Modal (used for connecting to Metamask) which persists as long as the page is open
+  const web3ModalRef = useRef();
+  const [accountAddress, setAccountAddress] = useState(undefined)
   const [open, setOpen] = useState(true);
-    
   const cancelButtonRef = useRef(null);
+  const [formInput, updateFormInput] = useState('');
+  const [rating, setRating] = useState();
+  const router = useRouter();
+  const data = router.query;
+  const txHash = data.txHash;
+  //const seller = data.seller;
+  //const tokenId = data.tokenId;
+  const itemId = data.itemId;
+  console.log(data);
+  console.log(data.txHash)
+
+  useEffect(() => {
+    if(!walletConnected) {
+      web3ModalRef.current = new Web3Modal({
+        network: "sepolia",
+        providerOptions: {},
+        disableInjectedProvider: false,
+      })
+    }
+    connectWallet()
+  }, [walletConnected])
+
+  const connectWallet = async () => {
+    try{
+      await getProviderOrSigner()
+      setWalletConnected(true)
+    }catch(error) {
+      console.log(error)
+    }
+  }
+
+  // triggers whenever ratings changed in dialog
   const ratingChanged = (newRating) => {
-    console.log(newRating);
+    setRating(newRating)
+    console.log(rating);
+
   };
+
+  // function to upload data to IPFS and get url
+  async function uploadData(){
+    console.log(formInput)
+    console.log(txHash)
+    //console.log(seller)
+    //console.log(tokenId)
+    console.log(itemId)
+
+    const jsonData = JSON.stringify({
+      txHash, itemId, rating, formInput
+    });
+    console.log(jsonData)
+    try{
+      const added = await client.add(jsonData);
+      const uri = `https://ipfs.io/ipfs/${added.path}`;
+      console.log(uri)
+      submitRating(uri)
+    }catch(e){
+      console.log(e);
+    }
+  }
+
+  // provider or signer for transaction
+  const getProviderOrSigner = async (needSigner = false) => {
+    const provider = await web3ModalRef.current.connect();
+    console.log(provider)
+    const web3Provider = new providers.Web3Provider(provider)
+    console.log(web3Provider)
+    const accounts = await web3Provider.listAccounts()
+    console.log(accounts[0])
+    setAccountAddress(accounts[0])  
+    // If user is not connected to the Sepolia network, let them know and throw an error
+    const { chainId } = await web3Provider.getNetwork();
+    if (chainId !== 11155111) {
+      window.alert("Change the network to Sepolia");
+      throw new Error("Change network to Sepolia");
+    }
+
+    if (needSigner) {
+      const signer = web3Provider.getSigner();
+      return signer;
+    }
+    return web3Provider;
+  }
+
+
+  // submit rating create transaction
+  async function submitRating(uri) {
+    try{
+      const signer = await getProviderOrSigner(true);
+      // create an instance of marketplace contract
+      let contract = new ethers.Contract(collectibelMarketplaceAddress, marketplaceABI, signer)
+      // send transaction to set rating
+      let transaction = await contract.setUserRatingAndReview(uri)
+      console.log(transaction)
+      let tx = await transaction.wait();
+      console.log(tx)
+      alert("Rating and Review submitted \n Transaction Hash : " + tx.transactionHash)
+      router.push('/');
+    }catch(error){
+      console.log(error)
+    }
+  }
   
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -37,7 +159,7 @@ export default function Example() {
             <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
 
-          {/* This element is to trick the browser into centering the modal contents. */}
+          
           <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
             &#8203;
           </span>
@@ -77,7 +199,7 @@ export default function Example() {
                         size={24}
                         activeColor="#ffd700"
                     />
-                      <input className="text-sm text-gray-500" placeholder='leave a review'>
+                      <input className="text-sm text-gray-500" placeholder='leave a review' onChange={e => updateFormInput({ ...formInput, name: e.target.value })}>
                       </input>
                     </div>
                   </div>
@@ -91,7 +213,7 @@ export default function Example() {
                     text-base font-medium text-white hover:bg-red-700 
                     focus:outline-none focus:ring-2 focus:ring-offset-2
                      focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={() => alert("kbjhwcb")}
+                  onClick={uploadData}
                 >
                   Submit
                 </button>

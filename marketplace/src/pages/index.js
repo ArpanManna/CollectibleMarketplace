@@ -5,7 +5,8 @@ import { Contract, providers, utils } from "ethers";
 import { collectibelMarketplaceAddress, collectibleTokenAddress, collectibleTokenABI, marketplaceABI } from "../../../config";
 import axios from "axios";
 import { ethers } from 'ethers';
-import Example from './modal.js';
+//import { modalCode } from './modal';
+import { useRouter } from 'next/router';
 
 export default function Home() {
   // walletConnected keep track of whether the user's wallet is connected or not
@@ -18,6 +19,7 @@ export default function Home() {
   const [formInput, updateFormInput] = useState('');
   const [amountToPurchase, updateAmountToPurchase] = useState('');
   const [curCollectible, updateCollectibleToBuy] = useState('');
+  const router = useRouter()
 
   useEffect(() => {
     if(!walletConnected) {
@@ -41,7 +43,6 @@ export default function Home() {
   }
   const getProviderOrSigner = async (needSigner = false) => {
     // Connect to Metamask
-    // Since we store `web3Modal` as a reference, we need to access the `current` value to get access to the underlying object
     const provider = await web3ModalRef.current.connect();
     console.log(provider)
     const web3Provider = new providers.Web3Provider(provider)
@@ -83,12 +84,12 @@ export default function Home() {
       const collectibleContract = new Contract(collectibleTokenAddress, collectibleTokenABI, provider);
       const items = await Promise.all(listedCollectibles.map(async i => {
         let tokenURI = await collectibleContract.uri(i.tokenId);
-        console.log(tokenURI);
+        //console.log(tokenURI);
         const meta = await axios.get(tokenURI);
-        console.log('price : ', parseInt(i.price._hex))
+        //console.log('price : ', parseInt(i.price._hex))
         //let price = ethers.utils.formatUnits(i.price.toString(),'ether');
         //console.log(price)
-        console.log(parseInt(i.supply._hex))
+        //console.log(parseInt(i.supply._hex))
         console.log('item Id: ', parseInt(i.itemid._hex))
         let item ={
           itemId: parseInt(i.itemid._hex),
@@ -103,9 +104,9 @@ export default function Home() {
         console.log(item)
         return item;
       }))
-      console.log('items',items)
+      //console.log('items',items)
       setCollectibles(items)
-      console.log('items after',items)
+      //console.log('items after',items)
       setLoadingState('loaded')
     } catch(error) {
       console.log(error)
@@ -127,6 +128,13 @@ export default function Home() {
       let tx = await transaction.wait();
       console.log(tx)
       alert("Purchase is successful \n Transaction Hash : " + tx.transactionHash)
+         router.push({
+        pathname: '/review',
+        query: {
+          txHash: tx.transactionHash,
+          itemId: _itemId,
+        }
+      });
     }catch(error){
       console.log(error)
     }
@@ -139,12 +147,6 @@ export default function Home() {
       <div className='absolute right-20 w-[200px] overflow-hidden text-ellipsis'>
         {renderConnectButton()}
       </div>
-      {/* <div className='w-1/2 flex flex-col pb-12'>
-        <div>
-          <input placeholder='Amount' className='mt-8 border rounded p-4' onChange={a => updateFormInput(a.target.value)}></input>
-          <button onClick={buyToken} className='font-bold mt-4 bg-yellow-500 text-white rounded p-4 shadow-lg'>BUY OCEAN</button>
-        </div>
-      </div> */}
       <div className='flex justify-center'>
     <div className='px-3 pt-20' style={{ maxWidth: '1600px' }}>
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 pb-[112px]'>

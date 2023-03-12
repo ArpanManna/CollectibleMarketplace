@@ -2,14 +2,13 @@ import styles from '../styles/Home.module.css'
 import { useState, useEffect, useRef } from 'react';
 import Web3Modal from 'web3modal';
 import { Contract, providers, utils } from "ethers";
-import { collectibelMarketplaceAddress, collectibleTokenAddress, collectibleTokenABI, marketplaceABI } from "../../../config";
+import { collectibleTokenAddress, collectibleTokenABI } from "../../../config";
 import { ethers } from 'ethers';
 import { useRouter } from 'next/router';
 
 export default function Home() {
   // walletConnected keep track of whether the user's wallet is connected or not
   const [walletConnected, setWalletConnected] = useState(false);
-    // Create a reference to the Web3 Modal (used for connecting to Metamask) which persists as long as the page is open
   const web3ModalRef = useRef();
   const [accountAddress, setAccountAddress] = useState(undefined)
   const [formInput, updateFormInput] = useState('');
@@ -36,7 +35,6 @@ export default function Home() {
   }
   const getProviderOrSigner = async (needSigner = false) => {
     // Connect to Metamask
-    // Since we store `web3Modal` as a reference, we need to access the `current` value to get access to the underlying object
     const provider = await web3ModalRef.current.connect();
     console.log(provider)
     const web3Provider = new providers.Web3Provider(provider)
@@ -70,7 +68,7 @@ export default function Home() {
   }
 
 
-
+  // buy token 
   async function buyToken(){
     let amountToPurchase = formInput;
     console.log(amountToPurchase)

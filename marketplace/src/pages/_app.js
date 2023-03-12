@@ -18,7 +18,7 @@ function Marketplace({ Component, pageProps }) {
           <Link href='/buy' className='text-center block border border-white rounded hover:border-gray-200 text-blue-500 hover:bg-gray-200 py-2 px-4'>
               Buy OCEAN
           </Link>
-          <Link href='/modal' className='block py-2 px-4 text-gray-400'>
+          <Link href='/review' className='block py-2 px-4 text-gray-400'>
               Ratings
           </Link>
         </div>
