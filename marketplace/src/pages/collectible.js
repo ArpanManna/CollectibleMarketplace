@@ -113,6 +113,7 @@ export default function createCollectible(){
       console.log(transaction)
       let tx = await transaction.wait();
       console.log(tx)
+      alert("Collectible created \n Transaction Hash : " + tx.transactionHash)
     }catch(error){
       console.log(error)
     }
@@ -130,7 +131,8 @@ export default function createCollectible(){
         let transaction = await contract.listCollectible(collectibleTokenAddress, tokenId, price, amount)
         let tx = await transaction.wait()
         console.log(tx)
-
+        alert("Listing is successful \n Transaction Hash : " + tx.transactionHash)
+        router.push('/');
     }catch(error){
         console.log(error)
     }

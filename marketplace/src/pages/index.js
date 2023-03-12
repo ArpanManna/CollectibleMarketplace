@@ -112,26 +112,6 @@ export default function Home() {
     }
   }
 
-  async function buyToken(){
-    let amountToPurchase = formInput;
-    console.log(amountToPurchase)
-    try{
-      const signer = await getProviderOrSigner(true);
-      // create an instance of CollectibleToken contract
-      let contract = new ethers.Contract(collectibleTokenAddress, collectibleTokenABI, signer)
-      // purchase token
-      let purchaseAmount = amountToPurchase*0.0001;
-      console.log(purchaseAmount)
-      let transaction = await contract.buyOceanToken(amountToPurchase, {value: ethers.utils.parseEther(purchaseAmount.toString())})
-      
-      console.log(transaction)
-      let tx = await transaction.wait();
-      console.log(tx)
-    }catch(error){
-      console.log(error)
-    }
-  }
-
   async function buyCollectible(_itemId){
     console.log('amount',amountToPurchase)
     console.log('itemid',_itemId)
@@ -146,6 +126,7 @@ export default function Home() {
       console.log(transaction)
       let tx = await transaction.wait();
       console.log(tx)
+      alert("Purchase is successful \n Transaction Hash : " + tx.transactionHash)
     }catch(error){
       console.log(error)
     }
@@ -158,12 +139,12 @@ export default function Home() {
       <div className='absolute right-20 w-[200px] overflow-hidden text-ellipsis'>
         {renderConnectButton()}
       </div>
-      <div className='absolute left-20 w-[200px] overflow-hidden text-ellipsis'>
+      {/* <div className='w-1/2 flex flex-col pb-12'>
         <div>
           <input placeholder='Amount' className='mt-8 border rounded p-4' onChange={a => updateFormInput(a.target.value)}></input>
           <button onClick={buyToken} className='font-bold mt-4 bg-yellow-500 text-white rounded p-4 shadow-lg'>BUY OCEAN</button>
         </div>
-      </div>
+      </div> */}
       <div className='flex justify-center'>
     <div className='px-3 pt-20' style={{ maxWidth: '1600px' }}>
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 pb-[112px]'>
@@ -179,7 +160,7 @@ export default function Home() {
                   <p className='text-gray-400'>{collectible.description}</p>
                 </div>
                 <div style={{ height: '30px', overflow: 'hidden'}}>
-                  <p className='text-gray-400'>Supply : {collectible.supply}</p>
+                  <p className='text-cyan-900	 font-bold'>Supply : {collectible.supply}</p>
                 </div>
               </div>
               <div className='p-4 bg-black'>

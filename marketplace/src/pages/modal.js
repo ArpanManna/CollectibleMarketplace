@@ -7,7 +7,7 @@ import ReactStars from "react-rating-stars-component";
 
 export default function Example() {
   const [open, setOpen] = useState(true);
-
+    
   const cancelButtonRef = useRef(null);
   const ratingChanged = (newRating) => {
     console.log(newRating);
@@ -91,7 +91,7 @@ export default function Example() {
                     text-base font-medium text-white hover:bg-red-700 
                     focus:outline-none focus:ring-2 focus:ring-offset-2
                      focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={() => setOpen(false)}
+                  onClick={() => alert("kbjhwcb")}
                 >
                   Submit
                 </button>

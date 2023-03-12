@@ -22,7 +22,7 @@ https://github.com/ArpanManna/CollectibleMarketplace
 ```sh
 npm install
 ```
-## Change directory to my-app
+## Change directory to marketplace
 ```sh
 npm install
 ```
@@ -30,4 +30,4 @@ npm install
 ```sh
 npm run dev
 ```
-NFT marketplace is running on localhost:3000
+ marketplace is running on localhost:3000
