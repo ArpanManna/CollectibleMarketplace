@@ -140,6 +140,34 @@ export default function Home() {
     }
   }
 
+  async function buyCollectibleWithEther(_itemId, _price){
+    console.log('amount',amountToPurchase)
+    console.log('itemid',_itemId)
+    try{
+      const signer = await getProviderOrSigner(true);
+      // create an instance of marketplace contract
+      let contract = new ethers.Contract(collectibelMarketplaceAddress, marketplaceABI, signer)
+      // purchase collectible
+      let purchaseAmount = amountToPurchase*_price*0.0001;
+      console.log(purchaseAmount)
+      let transaction = await contract.buyCollectible(collectibleTokenAddress, _itemId, amountToPurchase, {value: ethers.utils.parseEther(purchaseAmount.toString())})
+      
+      console.log(transaction)
+      let tx = await transaction.wait();
+      console.log(tx)
+      alert("Purchase is successful \n Transaction Hash : " + tx.transactionHash)
+         router.push({
+        pathname: '/review',
+        query: {
+          txHash: tx.transactionHash,
+          itemId: _itemId,
+        }
+      });
+    }catch(error){
+      console.log(error)
+    }
+  }
+
 
   return (
     <div className={styles.container}>
@@ -169,7 +197,7 @@ export default function Home() {
                 <p className='text-2xl mb-4 font-bold text-white'>{collectible.price} OCEAN</p>
                 <input placeholder='Amount' className='mt-5 border rounded py-2' onChange={p => updateAmountToPurchase(p.target.value)}></input>
                 <button onClick={e => buyCollectible(collectible.itemId)} className='bg-yellow-600 text-white font-bold py-2 px-12 rounded'>Buy</button>
-                
+                <button onClick={e => buyCollectibleWithEther(collectible.itemId, collectible.price)} className='bg-yellow-600 text-white font-bold py-2 px-12 rounded'>Buy with Ether</button>
               </div>
             </div>
           ))
